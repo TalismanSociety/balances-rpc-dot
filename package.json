@@ -2,9 +2,9 @@
   "name": "balances-rpc-dot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "util/AccountInfo.js",
   "scripts": {
-    "run": "node index.js"
+    "test": "mocha --exit --recursive"
   },
   "author": "",
   "license": "ISC",
@@ -14,5 +14,8 @@
     "@polkadot/types-known": "^5.5.1",
     "@polkadot/util-crypto": "^7.2.1",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "chai": "^4.3.4"
   }
 }
