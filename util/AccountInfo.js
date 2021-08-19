@@ -6,7 +6,6 @@ const request = require('request');
 const systemHash = "26aa394eea5630e07c48ae0c9558cef7"; //util_crypto.xxhashAsHex("System", 128);
 const accountHash = "b99d880ec681799c0cf30e8886371da9"; //util_crypto.xxhashAsHex("Account", 128);
 const accountTuple = { "AccountInfo": "(u64, u64, u64, u64, u64)" };
-const lastTypeKey = "(u64, u64, u64, u64, u64)";
 registry.register(accountTuple);
 
 module.exports = class AccountInfo {
@@ -18,6 +17,10 @@ module.exports = class AccountInfo {
         this.addressHex = Buffer.from(this.addressBytes).toString('hex');
     }
 
+    /*
+    * @dev gets the native account information for a particular address
+    * @returns an object containing the nonce, index, freeBalance, locked & reserved info
+    * */
     async getAccountInfo() {
         const payload = "0x" + systemHash + accountHash + this.hashedAddress + this.addressHex;
         const rawBytes = await this.getStorageStateRaw(payload);
@@ -32,6 +35,10 @@ module.exports = class AccountInfo {
         }
     }
 
+    /*
+    * @dev makes a generic low level state_getStorage call via RPC
+    * @returns raw result from the node
+    * */
     async getStorageStateRaw(payload) {
         return new Promise((resolve, reject) => {
             request(this.endpoint, {
@@ -53,8 +60,12 @@ module.exports = class AccountInfo {
         });
     }
 
+    /*
+    * @dev parses the raw bytes returned via RPC into readable information
+    * @returns a decoded object
+    * */
     decodeResult(rawBytes) {
-        return types.createType(registry, lastTypeKey, rawBytes);
+        return types.createType(registry, accountTuple.AccountInfo, rawBytes);
     }
 
 }
