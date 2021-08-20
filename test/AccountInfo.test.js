@@ -17,4 +17,22 @@ describe("AccountInfo functionality", () => {
         expect(keys[4] === "reserved", "should have a reserved field");
     });
 
+    it("should be able to get an asset account balance", async () => {
+        const accountInfo = new AccountInfo(
+            "cnWJAqJZ9KrEbBFupqrtTHHZtfbriyJptFmh9cAjEteR1JnZ9",
+            "https://rpc.sora2.soramitsu.co.jp"
+        );
+        const assetBalance = await accountInfo.getAssetAccountInfo("0x0200060000000000000000000000000000000000000000000000000000000000");
+        expect(assetBalance.balance).to.not.equal(undefined);
+    });
+
+    it("should be able to get an asset account balance with a different format address", async () => {
+        const accountInfo = new AccountInfo(
+            "5ENpP27BrVdJTdUfY6djmcw3d3xEJ6NzSUU52CCPmGpMrdEY",
+            "https://rpc.sora2.soramitsu.co.jp"
+        );
+        const assetBalance = await accountInfo.getAssetAccountInfo("0x0200060000000000000000000000000000000000000000000000000000000000");
+        expect(assetBalance.balance).to.not.equal(undefined);
+    });
+
 });

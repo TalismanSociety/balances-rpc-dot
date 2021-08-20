@@ -12,6 +12,7 @@ module.exports = class AccountInfo {
 
     constructor(address, endpoint) {
         this.endpoint = endpoint;
+        this.address = address;
         this.addressBytes = keyring.decodeAddress(address);
         this.hashedAddress = util_crypto.blake2AsHex(this.addressBytes, 128).replace("0x", "");
         this.addressHex = Buffer.from(this.addressBytes).toString('hex');
@@ -23,7 +24,7 @@ module.exports = class AccountInfo {
     * */
     async getAccountInfo() {
         const payload = "0x" + systemHash + accountHash + this.hashedAddress + this.addressHex;
-        const rawBytes = await this.getStorageStateRaw(payload);
+        const rawBytes = await this.getCallRPC("state_getStorage", [payload]);
         const decoded = JSON.stringify(this.decodeResult(rawBytes));
         const decodedArray = JSON.parse(decoded);
         return {
@@ -36,18 +37,30 @@ module.exports = class AccountInfo {
     }
 
     /*
-    * @dev makes a generic low level state_getStorage call via RPC
+    * @dev gets the asset account information for a particular address and asset
+    * @param assetId - the id of the asset, see examples here: https://wiki.sora.org/polkaswap/tokens-id-addresses
+    * @returns an object containing the balance
+    * */
+    async getAssetAccountInfo(assetId) {
+        const params = [this.address, assetId];
+        return this.getCallRPC("assets_freeBalance", params);
+    }
+
+    /*
+    * @dev calls RPC node
+    * @param method - the RPC method
+    * @param params - the parameter payload to the RPC call
     * @returns raw result from the node
     * */
-    async getStorageStateRaw(payload) {
+    async getCallRPC(method, params) {
         return new Promise((resolve, reject) => {
             request(this.endpoint, {
                 method: "POST",
                 body: JSON.stringify({
                     id: 1,
                     jsonrpc: "2.0",
-                    method: "state_getStorage",
-                    params: [payload]
+                    method: method,
+                    params: params
                 }),
                 headers: { "Content-Type": "application/json" }
             }, (error, response, body) => {
