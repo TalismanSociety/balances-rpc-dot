@@ -4,7 +4,7 @@
   "description": "",
   "main": "util/AccountInfo.js",
   "scripts": {
-    "test": "mocha --exit --recursive"
+    "test": "mocha --exit --recursive --timeout=50000"
   },
   "author": "",
   "license": "ISC",

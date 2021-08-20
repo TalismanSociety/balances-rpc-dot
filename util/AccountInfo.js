@@ -22,7 +22,7 @@ module.exports = class AccountInfo {
     * @dev gets the native account information for a particular address
     * @returns an object containing the nonce, index, freeBalance, locked & reserved info
     * */
-    async getAccountInfo() {
+    async getAccountBalanceInfo() {
         const payload = "0x" + systemHash + accountHash + this.hashedAddress + this.addressHex;
         const rawBytes = await this.getCallRPC("state_getStorage", [payload]);
         const decoded = JSON.stringify(this.decodeResult(rawBytes));
@@ -36,12 +36,28 @@ module.exports = class AccountInfo {
         }
     }
 
+    //TODO unfortunately you cannot batch these together
+    /*
+    * @dev gets multiple account balances by asset ids
+    * @param assetIds - array of asset ids that you want the balance for
+    * @returns an object containing the balances
+    * */
+    async getMultipleAssetAccountBalances(assetIds) {
+        const balances = [];
+        for(const id of assetIds) {
+            const assetBalance = await this.getAssetBalanceAccountInfo(id);
+            assetBalance.id = id;
+            balances.push(assetBalance);
+        }
+        return balances;
+    }
+
     /*
     * @dev gets the asset account information for a particular address and asset
     * @param assetId - the id of the asset, see examples here: https://wiki.sora.org/polkaswap/tokens-id-addresses
     * @returns an object containing the balance
     * */
-    async getAssetAccountInfo(assetId) {
+    async getAssetBalanceAccountInfo(assetId) {
         const params = [this.address, assetId];
         return this.getCallRPC("assets_freeBalance", params);
     }
